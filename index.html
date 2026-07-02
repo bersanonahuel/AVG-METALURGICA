@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVF Metalúrgica - Sistema de Pagos</title>
+    <!-- PWA & Favicon -->
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" href="icon-512.png">
+    <link rel="apple-touch-icon" href="icon-512.png">
+    <meta name="theme-color" content="#CC0000">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="AVF">
+    <meta name="mobile-web-app-capable" content="yes">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome para íconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="dark-theme">
+    
+    <div id="app-container">
+        
+        <!-- PANTALLA DE LOGIN -->
+        <section id="login-view" class="view active">
+            <div class="glass-card login-card">
+                <div class="logo">
+                    <img src="avf_logo.png" alt="AVF Metalúrgica" style="width: 120px; height: 120px; object-fit: contain; margin-bottom: 0.5rem;">
+                    <h1>AVF <span>METALÚRGICA</span></h1>
+                </div>
+                
+                <div class="login-tabs">
+                    <button class="tab-btn active" data-target="login-employee">Empleado</button>
+                    <button class="tab-btn" data-target="login-admin">Admin</button>
+                </div>
+
+                <div class="tab-content active" id="login-employee">
+                    <p class="subtitle">Accede a tu historial de pagos y horas formales.</p>
+                    <form id="form-login-employee">
+                        <div class="input-group">
+                            <label><i class="fa-solid fa-user"></i> Nombre</label>
+                            <input type="text" id="emp-nombre" required placeholder="Ej: Juan">
+                        </div>
+                        <div class="input-group">
+                            <label><i class="fa-solid fa-users"></i> Apellido</label>
+                            <input type="text" id="emp-apellido" required placeholder="Ej: Perez">
+                        </div>
+                        <div class="input-group">
+                            <label><i class="fa-solid fa-id-card"></i> DNI</label>
+                            <input type="number" id="emp-dni" required placeholder="Sin puntos">
+                        </div>
+                        <button type="submit" class="btn-primary w-100">Ingresar</button>
+                    </form>
+                </div>
+
+                <div class="tab-content" id="login-admin">
+                    <p class="subtitle">Acceso administrativo del sistema.</p>
+                    <form id="form-login-admin">
+                        <div class="input-group">
+                            <label><i class="fa-solid fa-user-shield"></i> Usuario</label>
+                            <input type="text" id="admin-user" required placeholder="Usuario administrador">
+                        </div>
+                        <div class="input-group">
+                            <label><i class="fa-solid fa-lock"></i> Contraseña</label>
+                            <input type="password" id="admin-pass" required placeholder="Contraseña">
+                        </div>
+                        <button type="submit" class="btn-primary w-100">Acceder al Panel</button>
+                    </form>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- PANEL DE ADMINISTRADOR -->
+        <section id="admin-view" class="view hidden layout-dashboard">
+            <aside class="sidebar glass-panel">
+                <div class="sidebar-header">
+                    <img src="avf_logo.png" alt="AVF" style="width: 36px; height: 36px; object-fit: contain;">
+                    <h2>AVF ADMIN</h2>
+                </div>
+                <nav class="sidebar-nav">
+                    <button class="nav-btn active" data-view="admin-dashboard"><i class="fa-solid fa-chart-pie"></i> Resumen</button>
+                    <button class="nav-btn" data-view="admin-employees"><i class="fa-solid fa-users-gear"></i> Empleados y Sueldos</button>
+                    <button class="nav-btn" data-view="admin-hours"><i class="fa-solid fa-clock"></i> Jornada Laboral</button>
+                    <button class="nav-btn" data-view="admin-overtime"><i class="fa-solid fa-business-time"></i> Horas Extras</button>
+                    <button class="nav-btn" data-view="admin-payments"><i class="fa-solid fa-money-bill-wave"></i> Pagos</button>
+                    <button class="nav-btn" data-view="admin-advances"><i class="fa-solid fa-hand-holding-dollar"></i> Adelantos</button>
+                    <button class="nav-btn" data-view="admin-expenses"><i class="fa-solid fa-receipt"></i> Gastos</button>
+                </nav>
+                <div class="sidebar-footer" style="display: flex; flex-direction: column; gap: 10px;">
+                    <button id="btn-backup-admin" class="btn-secondary" style="width: 100%;"><i class="fa-solid fa-download"></i> Guardar Backup</button>
+                    <button id="btn-logout-admin" class="btn-danger-outline" style="width: 100%;"><i class="fa-solid fa-right-from-bracket"></i> Salir</button>
+                </div>
+            </aside>
+            <main class="dashboard-content">
+                <!-- Secciones de Admin aquí (se crearán con JS o se mostrarán/ocultarán) -->
+                <div id="admin-dashboard" class="dashboard-section active">
+                    <header class="section-header">
+                        <h2>Resumen General</h2>
+                        <p>Visión global del sistema AVF Metalúrgica.</p>
+                    </header>
+                    <div class="stats-grid">
+                        <div class="stat-card glass-card">
+                            <div class="stat-icon blue"><i class="fa-solid fa-user-tie"></i></div>
+                            <div class="stat-info">
+                                <h3>Empleados</h3>
+                                <p id="stat-emp-count">0</p>
+                            </div>
+                        </div>
+                        <div class="stat-card glass-card">
+                            <div class="stat-icon green"><i class="fa-solid fa-money-check-dollar"></i></div>
+                            <div class="stat-info">
+                                <h3>Total Pagado (Mes)</h3>
+                                <p id="stat-total-paid">$0</p>
+                            </div>
+                        </div>
+                        <div class="stat-card glass-card">
+                            <div class="stat-icon red"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+                            <div class="stat-info">
+                                <h3>Gastos (Mes)</h3>
+                                <p id="stat-total-exp">$0</p>
+                            </div>
+                        </div>
+                        <div class="stat-card glass-card">
+                            <div class="stat-icon warning" style="color: var(--warning); background: rgba(245, 158, 11, 0.1);"><i class="fa-solid fa-scale-unbalanced"></i></div>
+                            <div class="stat-info">
+                                <h3>Deuda a Empleados</h3>
+                                <p id="stat-total-debt">$0</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="admin-employees" class="dashboard-section hidden">
+                    <header class="section-header flex-between">
+                        <div>
+                            <h2>Gestión de Empleados</h2>
+                            <p>Administra personal y valor hora.</p>
+                        </div>
+                        <button class="btn-primary" onclick="UI.showModal('modal-add-employee')"><i class="fa-solid fa-plus"></i> Nuevo Empleado</button>
+                    </header>
+                    <div class="glass-card table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Nombre Completo</th>
+                                    <th>DNI</th>
+                                    <th>Val. Hora</th>
+                                    <th>Val. H. Extra</th>
+                                    <th>Total Horas</th>
+                                    <th>Saldo a Pagar</th>
+                                    <th>F. Ingreso</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-employees">
+                                <!-- Filas dinámicas -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- OTRAS SECCIONES (Horas, Pagos, Gastos) SE AGREGARÁN DINÁMICAMENTE O AQUÍ -->
+                <div id="admin-hours" class="dashboard-section hidden">
+                    <header class="section-header flex-between">
+                        <div>
+                            <h2>Jornada Laboral</h2>
+                            <p>Carga las horas trabajadas por día/semana de cada empleado.</p>
+                        </div>
+                    </header>
+                    <div class="glass-card mb-4" style="padding: 1.5rem; margin-bottom: 2rem;">
+                        <form id="form-add-hours" class="grid-form">
+                            <div class="input-group">
+                                <label>Empleado</label>
+                                <select id="hour-emp-id" required class="select-glass"></select>
+                            </div>
+                            <div class="input-group">
+                                <label>Fecha</label>
+                                <input type="date" id="hour-date" required>
+                            </div>
+                            <div class="input-group">
+                                <label>Hora de Ingreso</label>
+                                <input type="time" id="hour-in" required>
+                            </div>
+                            <div class="input-group">
+                                <label>Hora de Egreso</label>
+                                <input type="time" id="hour-out" required>
+                            </div>
+                            <div class="input-group" style="display: flex; align-items: flex-end;">
+                                <button type="submit" class="btn-primary w-100"><i class="fa-solid fa-plus"></i> Cargar Horas</button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <div class="glass-card table-container">
+                        <h3>Últimas Horas Cargadas</h3>
+                        <br>
+                        <table class="data-table">
+                            <thead>
+                                <tr><th>Empleado</th><th>Fecha</th><th>Ingreso/Egreso</th><th>Horas</th><th>Acciones</th></tr>
+                            </thead>
+                            <tbody id="table-admin-hours"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="admin-overtime" class="dashboard-section hidden">
+                    <header class="section-header flex-between">
+                        <div>
+                            <h2>Horas Extras</h2>
+                            <p>Carga horas adicionales con un valor monetario específico.</p>
+                        </div>
+                    </header>
+                    <div class="glass-card mb-4" style="padding: 1.5rem; margin-bottom: 2rem;">
+                        <form id="form-add-overtime" class="grid-form">
+                            <div class="input-group">
+                                <label>Empleado</label>
+                                <select id="ovt-emp-id" required class="select-glass"></select>
+                            </div>
+                            <div class="input-group">
+                                <label>Fecha</label>
+                                <input type="date" id="ovt-date" required>
+                            </div>
+                            <div class="input-group">
+                                <label>Cant. Horas</label>
+                                <input type="number" step="0.1" id="ovt-qty" required placeholder="0.0">
+                            </div>
+                            <div class="input-group">
+                                <label>Valor por Hora Extra ($)</label>
+                                <input type="number" step="0.01" id="ovt-rate" required placeholder="0.00">
+                            </div>
+                            <div class="input-group">
+                                <label>Total Calculado ($)</label>
+                                <input type="text" id="ovt-total-display" readonly style="background: rgba(0,0,0,0.2); font-weight: bold; font-size: 1.1em; color: var(--success);" value="$0.00">
+                            </div>
+                            <div class="input-group" style="display: flex; align-items: flex-end;">
+                                <button type="submit" class="btn-primary w-100"><i class="fa-solid fa-plus"></i> Cargar Extra</button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <div class="glass-card table-container">
+                        <h3>Historial de Horas Extras</h3>
+                        <br>
+                        <table class="data-table">
+                            <thead>
+                                <tr><th>Empleado</th><th>Fecha</th><th>Horas</th><th>Val/Hora</th><th>Total</th><th>Acciones</th></tr>
+                            </thead>
+                            <tbody id="table-admin-overtime"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="admin-payments" class="dashboard-section hidden">
+                    <header class="section-header">
+                        <h2>Pagos a Empleados</h2>
+                        <p>Registra cuando se realiza la liquidación o pago de sueldo.</p>
+                    </header>
+                    <div class="glass-card mb-4" style="padding: 1.5rem; margin-bottom: 2rem;">
+                        <form id="form-add-payment" class="grid-form">
+                            <div class="input-group">
+                                <label>Empleado</label>
+                                <select id="pay-emp-id" required class="select-glass"></select>
+                            </div>
+                            <div class="input-group">
+                                <label>Monto a Pagar ($)</label>
+                                <input type="number" step="0.01" id="pay-amount" required placeholder="0.00">
+                            </div>
+                            <div class="input-group" style="display: flex; align-items: flex-end;">
+                                <button type="submit" class="btn-primary w-100"><i class="fa-solid fa-check"></i> Registrar Pago</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="glass-card table-container">
+                        <h3>Historial de Pagos</h3>
+                        <br>
+                        <table class="data-table">
+                            <thead>
+                                <tr><th>Empleado</th><th>Monto</th><th>Fecha del Registro</th><th>Acciones</th></tr>
+                            </thead>
+                            <tbody id="table-admin-payments"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="admin-advances" class="dashboard-section hidden">
+                    <header class="section-header">
+                        <h2>Adelantos a Trabajadores</h2>
+                        <p>Registra gastos directos hacia empleados que no afectan su sueldo base.</p>
+                    </header>
+                    <div class="glass-card mb-4" style="padding: 1.5rem; margin-bottom: 2rem;">
+                        <form id="form-add-advance" class="grid-form">
+                            <div class="input-group">
+                                <label>Empleado</label>
+                                <select id="adv-emp-id" required class="select-glass"></select>
+                            </div>
+                            <div class="input-group">
+                                <label>Monto ($)</label>
+                                <input type="number" step="0.01" id="adv-amount" required placeholder="0.00">
+                            </div>
+                            <div class="input-group">
+                                <label>Descripción</label>
+                                <input type="text" id="adv-desc" placeholder="Adelanto de sueldo">
+                            </div>
+                            <div class="input-group" style="display: flex; align-items: flex-end;">
+                                <button type="submit" class="btn-primary w-100"><i class="fa-solid fa-plus"></i> Registrar Adelanto</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="glass-card table-container">
+                        <h3>Historial de Adelantos</h3>
+                        <br>
+                        <table class="data-table">
+                            <thead>
+                                <tr><th>Empleado</th><th>Detalle</th><th>Monto</th><th>Fecha</th><th>Acciones</th></tr>
+                            </thead>
+                            <tbody id="table-admin-advances"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="admin-expenses" class="dashboard-section hidden">
+                    <header class="section-header">
+                        <h2>Gastos Generales</h2>
+                        <p>Anota todas las salidas de dinero externas de la empresa (materiales, insumos, etc).</p>
+                    </header>
+                    <div class="glass-card mb-4" style="padding: 1.5rem; margin-bottom: 2rem;">
+                        <form id="form-add-expense" class="grid-form">
+                            <div class="input-group">
+                                <label>Descripción del Gasto</label>
+                                <input type="text" id="exp-desc" required placeholder="Ej: Compra de metales...">
+                            </div>
+                            <div class="input-group">
+                                <label>Monto ($)</label>
+                                <input type="number" step="0.01" id="exp-amount" required placeholder="0.00">
+                            </div>
+                            <div class="input-group" style="display: flex; align-items: flex-end;">
+                                <button type="submit" class="btn-primary w-100"><i class="fa-solid fa-plus"></i> Cargar Gasto</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="glass-card table-container">
+                        <h3>Historial de Gastos</h3>
+                        <br>
+                        <table class="data-table">
+                            <thead>
+                                <tr><th>Descripción</th><th>Monto</th><th>Fecha del Registro</th><th>Acciones</th></tr>
+                            </thead>
+                            <tbody id="table-admin-expenses"></tbody>
+                        </table>
+                    </div>
+                </div>            </main>
+        </section>
+
+        <!-- PANEL DE EMPLEADO -->
+        <section id="employee-view" class="view hidden layout-dashboard">
+            <aside class="sidebar glass-panel">
+                <div class="sidebar-header">
+                    <img src="avf_logo.png" alt="AVF" style="width: 36px; height: 36px; object-fit: contain;">
+                    <h2>AVF PERSONAL</h2>
+                </div>
+                <div class="user-profile">
+                    <div class="avatar"><i class="fa-solid fa-user"></i></div>
+                    <h3 id="logged-emp-name">Nombre</h3>
+                    <p>Empleado DNI: <span id="logged-emp-dni"></span></p>
+                </div>
+                <nav class="sidebar-nav">
+                    <button class="nav-btn active" data-view="emp-dashboard"><i class="fa-solid fa-house"></i> Mi Resumen</button>
+                    <button class="nav-btn" data-view="emp-history"><i class="fa-solid fa-clock-rotate-left"></i> Mi Historial</button>
+                </nav>
+                <div class="sidebar-footer">
+                    <button id="btn-logout-employee" class="btn-danger-outline"><i class="fa-solid fa-right-from-bracket"></i> Salir</button>
+                </div>
+            </aside>
+            <main class="dashboard-content">
+                <div id="emp-dashboard" class="dashboard-section active">
+                    <header class="section-header">
+                        <h2>Hola, <span id="welcome-name"></span></h2>
+                        <p>Este es el resumen de tu actividad laboral reciente.</p>
+                    </header>
+                    <div class="stats-grid">
+                        <div class="stat-card glass-card">
+                            <div class="stat-icon purple"><i class="fa-solid fa-business-time"></i></div>
+                            <div class="stat-info">
+                                <h3>Total Horas</h3>
+                                <p id="emp-stat-hours">0 hrs</p>
+                            </div>
+                        </div>
+                        <div class="stat-card glass-card">
+                            <div class="stat-icon green"><i class="fa-solid fa-hand-holding-dollar"></i></div>
+                            <div class="stat-info">
+                                <h3>Último Pago</h3>
+                                <p id="emp-stat-lastpay">$0</p>
+                            </div>
+                        </div>
+                        <div class="stat-card glass-card">
+                            <div class="stat-icon warning" style="color: var(--warning); background: rgba(245, 158, 11, 0.1);"><i class="fa-solid fa-piggy-bank"></i></div>
+                            <div class="stat-info">
+                                <h3>Saldo Pendiente</h3>
+                                <p id="emp-stat-debt">$0</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="emp-history" class="dashboard-section hidden">
+                    <header class="section-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                        <div>
+                            <h2>Mi Historial</h2>
+                            <p>Desglose de todas tus horas trabajadas y pagos recibidos.</p>
+                        </div>
+                        <div class="input-group" style="margin-bottom: 0; min-width: 200px;">
+                            <select id="emp-history-quincena" style="padding: 8px; border-radius: 4px; background: var(--glass-bg); color: var(--text-main); border: 1px solid var(--glass-border);">
+                                <option value="ALL">Todo el historial</option>
+                            </select>
+                        </div>
+                    </header>
+                    
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+                        <div class="glass-card table-container">
+                            <h3>Mis Horas</h3><br>
+                            <table class="data-table">
+                                <thead><tr><th>Fecha</th><th>Ingreso/Egreso</th><th>Horas</th></tr></thead>
+                                <tbody id="table-emp-hours-history"></tbody>
+                            </table>
+                        </div>
+                        <div class="glass-card table-container">
+                            <h3>Mis Pagos Recibidos</h3><br>
+                            <table class="data-table">
+                                <thead><tr><th>Fecha Registro</th><th>Monto</th></tr></thead>
+                                <tbody id="table-emp-payments-history"></tbody>
+                            </table>
+                        </div>
+                        <div class="glass-card table-container">
+                            <h3>Mis Adelantos</h3><br>
+                            <table class="data-table">
+                                <thead><tr><th>Fecha</th><th>Detalle</th><th>Monto</th></tr></thead>
+                                <tbody id="table-emp-advances-history"></tbody>
+                            </table>
+                        </div>
+                        <div class="glass-card table-container">
+                            <h3>Mis Horas Extras</h3><br>
+                            <table class="data-table">
+                                <thead><tr><th>Fecha</th><th>Horas</th><th>Valor</th></tr></thead>
+                                <tbody id="table-emp-overtime-history"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </section>
+        
+        <!-- MODALS -->
+        <div id="modal-overlay" class="modal-overlay hidden">
+            <!-- Modal Add Employee -->
+            <div id="modal-add-employee" class="modal glass-card hidden">
+                <div class="modal-header">
+                    <h3><i class="fa-solid fa-user-plus"></i> Nuevo Empleado</h3>
+                    <button class="close-modal"><i class="fa-solid fa-times"></i></button>
+                </div>
+                <div class="modal-body">
+                    <form id="form-add-employee">
+                        <div class="input-group">
+                            <label>Nombre</label>
+                            <input type="text" id="add-emp-nombre" required>
+                        </div>
+                        <div class="input-group">
+                            <label>Apellido</label>
+                            <input type="text" id="add-emp-apellido" required>
+                        </div>
+                        <div class="input-group">
+                            <label>DNI</label>
+                            <input type="number" id="add-emp-dni" required>
+                        </div>
+                        <div class="input-group">
+                            <label>Valor por Hora ($)</label>
+                            <input type="number" step="0.01" id="add-emp-valor" required>
+                        </div>
+                        <div class="input-group">
+                            <label>Valor Hora Extra ($)</label>
+                            <input type="number" step="0.01" id="add-emp-valor-extra" required>
+                        </div>
+                        <div class="modal-actions">
+                            <button type="button" class="btn-secondary close-modal-btn">Cancelar</button>
+                            <button type="submit" class="btn-primary">Guardar Empleado</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Modal View Employee Details -->
+            <div id="modal-view-employee" class="modal glass-card hidden" style="max-width: 800px; max-height: 90vh; overflow-y: auto;">
+                <div class="modal-header">
+                    <h3><i class="fa-solid fa-address-card"></i> Detalles del Empleado</h3>
+                    <button class="close-modal"><i class="fa-solid fa-times"></i></button>
+                </div>
+                <div class="modal-body">
+                    <div style="margin-bottom: 1.5rem;">
+                        <label style="display: block; margin-bottom: 5px; color: var(--text-muted); font-size: 0.9em;">Filtrar por Quincena:</label>
+                        <select id="admin-view-emp-quincena" style="width: 100%; padding: 10px; border-radius: 4px; background: var(--glass-bg); color: var(--text-main); border: 1px solid var(--glass-border);">
+                            <option value="ALL">Todo el historial</option>
+                        </select>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                        <div class="glass-card" style="padding: 1rem;">
+                            <h4 style="margin-bottom: 0.5rem; color: var(--primary);">Información</h4>
+                            <p><strong>Nombre:</strong> <span id="view-emp-nombre"></span></p>
+                            <p><strong>DNI:</strong> <span id="view-emp-dni"></span></p>
+                            <p><strong>Valor Hora:</strong> $<span id="view-emp-valor"></span></p>
+                            <p><strong>Valor H. Extra:</strong> $<span id="view-emp-valor-extra"></span></p>
+                        </div>
+                        <div class="glass-card" style="padding: 1rem;">
+                            <h4 style="margin-bottom: 0.5rem; color: var(--primary);">Balance</h4>
+                            <p><strong>Normales:</strong> <span id="view-emp-horas-n"></span> hrs ($<span id="view-emp-val-n"></span>)</p>
+                            <p><strong>Extras:</strong> <span id="view-emp-horas-e"></span> hrs ($<span id="view-emp-val-e"></span>)</p>
+                            <p><strong>Pagos:</strong> -$<span id="view-emp-pagos" style="color: var(--danger);"></span></p>
+                            <p><strong>Adelantos:</strong> -$<span id="view-emp-adelantos" style="color: var(--danger);"></span></p>
+                        </div>
+                    </div>
+                    <div class="glass-card" style="padding: 1.5rem; text-align: center; background: rgba(245, 158, 11, 0.1); border-color: rgba(245, 158, 11, 0.3); margin-bottom: 1.5rem;">
+                        <h3 style="margin-bottom: 0.5rem; color: var(--warning);">Saldo a Pagar</h3>
+                        <h2 id="view-emp-saldo" style="font-size: 2rem; color: var(--warning);"></h2>
+                    </div>
+                    
+                    <!-- TABLAS DE HISTORIAL -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="glass-card table-container" style="max-height: 250px; overflow-y: auto;">
+                            <h4 style="margin-bottom: 1rem;">Historial de Horas</h4>
+                            <table class="data-table" style="font-size: 0.85em;">
+                                <thead><tr><th>Fecha</th><th>Ing/Egr</th><th>Horas</th></tr></thead>
+                                <tbody id="view-emp-table-hours"></tbody>
+                            </table>
+                        </div>
+                        <div class="glass-card table-container" style="max-height: 250px; overflow-y: auto;">
+                            <h4 style="margin-bottom: 1rem;">Historial de Pagos</h4>
+                            <table class="data-table" style="font-size: 0.85em;">
+                                <thead><tr><th>Fecha</th><th>Monto</th></tr></thead>
+                                <tbody id="view-emp-table-payments"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="modal-actions" style="margin-top: 1.5rem; display: flex; gap: 1rem;">
+                        <button type="button" class="btn-primary close-modal-btn w-100" style="background-color: var(--text-muted); color: var(--bg-main);">Cerrar</button>
+                        <button type="button" id="btn-export-pdf" class="btn-primary w-100" style="background-color: var(--purple); color: white;"><i class="fa-solid fa-file-pdf"></i> Descargar PDF</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Edit Employee -->
+            <div id="modal-edit-employee" class="modal glass-card hidden">
+                <div class="modal-header">
+                    <h3><i class="fa-solid fa-user-pen"></i> Editar Empleado</h3>
+                    <button class="close-modal"><i class="fa-solid fa-times"></i></button>
+                </div>
+                <div class="modal-body">
+                    <form id="form-edit-employee">
+                        <input type="hidden" id="edit-emp-id">
+                        <div class="input-group">
+                            <label>Nombre</label>
+                            <input type="text" id="edit-emp-nombre" required>
+                        </div>
+                        <div class="input-group">
+                            <label>Apellido</label>
+                            <input type="text" id="edit-emp-apellido" required>
+                        </div>
+                        <div class="input-group">
+                            <label>DNI</label>
+                            <input type="number" id="edit-emp-dni" required>
+                        </div>
+                        <div class="input-group">
+                            <label>Valor por Hora ($)</label>
+                            <input type="number" step="0.01" id="edit-emp-valor" required>
+                        </div>
+                        <div class="input-group">
+                            <label>Valor Hora Extra ($)</label>
+                            <input type="number" step="0.01" id="edit-emp-valor-extra" required>
+                        </div>
+                        <div class="modal-actions">
+                            <button type="button" class="btn-secondary close-modal-btn">Cancelar</button>
+                            <button type="submit" class="btn-primary">Actualizar Empleado</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Modal Edit Hour -->
+            <div id="modal-edit-hour" class="modal glass-card hidden">
+                <div class="modal-header">
+                    <h3><i class="fa-solid fa-clock"></i> Editar Horas</h3>
+                    <button class="close-modal"><i class="fa-solid fa-times"></i></button>
+                </div>
+                <div class="modal-body">
+                    <form id="form-edit-hour">
+                        <input type="hidden" id="edit-hour-id">
+                        <input type="hidden" id="edit-hour-empId">
+                        <div class="input-group">
+                            <label>Fecha</label>
+                            <input type="date" id="edit-hour-date" required>
+                        </div>
+                        <div class="input-group">
+                            <label>Hora de Ingreso</label>
+                            <input type="time" id="edit-hour-in" required>
+                        </div>
+                        <div class="input-group">
+                            <label>Hora de Egreso</label>
+                            <input type="time" id="edit-hour-out" required>
+                        </div>
+                        <div class="modal-actions">
+                            <button type="button" class="btn-secondary close-modal-btn">Cancelar</button>
+                            <button type="submit" class="btn-primary">Actualizar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Modal Edit Payment -->
+            <div id="modal-edit-payment" class="modal glass-card hidden">
+                <div class="modal-header">
+                    <h3><i class="fa-solid fa-money-bill-wave"></i> Editar Pago</h3>
+                    <button class="close-modal"><i class="fa-solid fa-times"></i></button>
+                </div>
+                <div class="modal-body">
+                    <form id="form-edit-payment">
+                        <input type="hidden" id="edit-payment-id">
+                        <div class="input-group">
+                            <label>Monto a Pagar ($)</label>
+                            <input type="number" step="0.01" id="edit-payment-amount" required>
+                        </div>
+                        <div class="modal-actions">
+                            <button type="button" class="btn-secondary close-modal-btn">Cancelar</button>
+                            <button type="submit" class="btn-primary">Actualizar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Modal Edit Expense -->
+            <div id="modal-edit-expense" class="modal glass-card hidden">
+                <div class="modal-header">
+                    <h3><i class="fa-solid fa-receipt"></i> Editar Gasto</h3>
+                    <button class="close-modal"><i class="fa-solid fa-times"></i></button>
+                </div>
+                <div class="modal-body">
+                    <form id="form-edit-expense">
+                        <input type="hidden" id="edit-expense-id">
+                        <div class="input-group">
+                            <label>Descripción del Gasto</label>
+                            <input type="text" id="edit-expense-desc" required>
+                        </div>
+                        <div class="input-group">
+                            <label>Monto ($)</label>
+                            <input type="number" step="0.01" id="edit-expense-amount" required>
+                        </div>
+                        <div class="modal-actions">
+                            <button type="button" class="btn-secondary close-modal-btn">Cancelar</button>
+                            <button type="submit" class="btn-primary">Actualizar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Modal Edit Overtime -->
+            <div id="modal-edit-overtime" class="modal glass-card hidden">
+                <div class="modal-header">
+                    <h3><i class="fa-solid fa-business-time"></i> Editar Horas Extras</h3>
+                    <button class="close-modal"><i class="fa-solid fa-times"></i></button>
+                </div>
+                <div class="modal-body">
+                    <form id="form-edit-overtime">
+                        <input type="hidden" id="edit-ovt-id">
+                        <input type="hidden" id="edit-ovt-empId">
+                        <div class="input-group">
+                            <label>Fecha</label>
+                            <input type="date" id="edit-ovt-date" required>
+                        </div>
+                        <div class="input-group">
+                            <label>Cant. Horas</label>
+                            <input type="number" step="0.1" id="edit-ovt-qty" required>
+                        </div>
+                        <div class="input-group">
+                            <label>Valor por Hora Extra ($)</label>
+                            <input type="number" step="0.01" id="edit-ovt-rate" required>
+                        </div>
+                        <div class="input-group">
+                            <label>Total Calculado ($)</label>
+                            <input type="text" id="edit-ovt-total-display" readonly style="background: rgba(0,0,0,0.2); font-weight: bold; font-size: 1.1em; color: var(--success);" value="$0.00">
+                        </div>
+                        <div class="modal-actions">
+                            <button type="button" class="btn-secondary close-modal-btn">Cancelar</button>
+                            <button type="submit" class="btn-primary">Actualizar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Toast Notifications -->
+            <div id="toast-container" class="toast-container"></div>
+        </div>
+
+    </div>
+
+    <!-- Scripts -->
+    <!-- SweetAlert2 for beautiful alerts -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <!-- Firebase SDK (Compat API) -->
+    <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-database-compat.js"></script>
+
+    <!-- jsPDF and AutoTable for PDF Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>window.jsPDF = window.jspdf.jsPDF;</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+
+    <script src="js/store.js"></script>
+    <script src="js/logo.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

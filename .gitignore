@@ -1,0 +1,18 @@
+# Archivos de Sistema
+.DS_Store
+Thumbs.db
+
+# Gemini/Antigravity Desktop App
+.gemini/
+.gemini_ignore
+.gemini_metadata
+.gemini_chat_history
+
+# Carpeta de logs de Antigravity
+.antigravity/
+
+# Otros
+*.log
+node_modules/
+dist/
+build/
